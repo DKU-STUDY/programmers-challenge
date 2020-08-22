@@ -1,7 +1,6 @@
 import {debounce, selectAll, selectOne} from "./utils/index.js";
-import { SEARCH_PATH } from "./constant/index.js";
 import {keywordsService, searchService} from "./services/index.js";
-import {fetchKeywords} from "./adapter/CatAdapter.js";
+import {fetchCats, fetchKeywords} from "./adapter/CatAdapter.js";
 
 const $keyword = selectOne(".keyword");
 const $keywords = selectOne(".keywords");
@@ -94,7 +93,7 @@ const closeRecommend = () => {
   window.removeEventListener('click', closeRecommend);
 }
 
-const search = () => {
+const search = async () => {
   if (state.isSearchLoading) return;
   let query = $keyword.value;
   if (state.selectedKey !== -1) {
@@ -107,16 +106,14 @@ const search = () => {
   }
   closeRecommend();
   searchLoading();
-  fetch(`${SEARCH_PATH}?q=${query}`)
-    .then((res) => res.json())
-    .then(results => {
-      searchService.set(query, results);
-      searchRender(results, query);
-    })
-    .catch(() => {
-      searchLoaded();
-      errorMessage('검색하는 도중 에러가 발생하였습니다.');
-    });
+  try {
+    const results = await fetchCats(query);
+    searchService.set(query, results);
+    searchRender(results, query);
+  } catch (e) {
+    searchLoaded();
+    errorMessage('검색하는 도중 에러가 발생하였습니다.');
+  }
 }
 
 const searchRender = (results, query) => {

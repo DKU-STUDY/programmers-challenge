@@ -13,9 +13,28 @@ const state = {
   }
 }
 
-$keyword.addEventListener("input", ({ target }) => {
-  if (target.value.length === 0) return;
-  fetch(`${KEYWORDS_PATH}?q=${encodeURIComponent(target.value)}`)
+$keywords.addEventListener('click', e => {
+  e.stopPropagation();
+  state.selectedKey = [ ...selectAll('li', $keywords) ].indexOf(e.target);
+  $keyword.value = state.selected;
+  search();
+})
+
+$keyword.addEventListener("input", ({ target: { value } }) => {
+  if (value.length === 0) return;
+  openRecommend(value);
+})
+
+$keyword.addEventListener("keyup", ({ target, key}) => {
+  const { value } = target;
+
+  if (['ArrowUp', 'ArrowDown'].includes(key)) move(key);
+  if (key === 'Escape') closeRecommend();
+  if (key === 'Enter') search(value);
+});
+
+const openRecommend = query => {
+  fetch(`${KEYWORDS_PATH}?q=${encodeURIComponent(query)}`)
     .then(res => res.json())
     .then(keywords => {
       if (!(keywords instanceof Array) || keywords.length === 0) return;
@@ -30,31 +49,25 @@ $keyword.addEventListener("input", ({ target }) => {
       state.isOpened = true;
       state.selectedKey = -1;
       $keywords.style.display = 'block';
+      window.addEventListener('click', closeRecommend);
     })
     .catch(console.log);
-})
+}
 
-$keyword.addEventListener("keyup", ({ target, key}) => {
-  const { value } = target;
-
-  if (['ArrowUp', 'ArrowDown'].includes(key)) move(key);
-  if (key === 'Escape') close();
-  if (key === 'Enter') search(value);
-});
-
-const close = () => {
+const closeRecommend = () => {
   $keywords.style.display = '';
   state.isOpened = false;
   state.selectedKey = -1;
+  window.removeEventListener('click', closeRecommend);
 }
 
-const search = inputQuery => {
-  let query = inputQuery;
+const search = () => {
+  let query = $keyword.value;
   if (state.selectedKey !== -1) {
     query = state.selected;
     $keyword.value = query;
   }
-  close();
+  closeRecommend();
   fetch(`${SEARCH_PATH}?q=${query}`)
     .then((res) => res.json())
     .then((results) => {

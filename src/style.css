@@ -78,7 +78,7 @@ img {
   object-fit: cover;
 }
 
-.loading {
+.searchLoading {
   position: absolute;
   left: 0;
   right: 0;
@@ -93,6 +93,15 @@ img {
   font-size: 21px;
 }
 
-.loading::after {
+.searchLoading::after {
   content: "고양이를 검색하고 있습니다.";
+}
+
+.keywordLoading {
+  padding: 10px;
+  text-align: center;
+  background: #f5f5f5;
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 3px;
 }

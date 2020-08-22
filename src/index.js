@@ -1,20 +1,23 @@
-import {selectAll, selectOne} from "./utils/index.js";
-import {KEYWORDS_PATH, SEARCH_PATH} from "./constant/index.js";
+import { selectAll, selectOne, debounce } from "./utils/index.js";
+import { KEYWORDS_PATH, SEARCH_PATH } from "./constant/index.js";
 
 const $keyword = selectOne(".keyword");
 const $keywords = selectOne(".keywords");
 const $searchResults = selectOne(".search-results");
+const controller = new AbortController();
 const state = {
   isOpened: false,
+  isSearchLoading: false,
+  isKeywordsLoading: false,
   selectedKey: -1,
   keywords: [],
-  loading: false,
   get selected () {
     return this.keywords[this.selectedKey];
   }
 }
-const loadingTag = document.createElement('div');
-loadingTag.classList.add('loading');
+
+const searchLoadingTag = document.createElement('div');
+searchLoadingTag.classList.add('searchLoading');
 
 $keywords.addEventListener('click', e => {
   e.stopPropagation();
@@ -25,7 +28,7 @@ $keywords.addEventListener('click', e => {
 
 $keyword.addEventListener("input", ({ target: { value } }) => {
   if (value.length === 0) return;
-  openRecommend(value);
+  debounce(openRecommend(value), 200);
 })
 
 $keyword.addEventListener("keyup", ({ target, key}) => {
@@ -37,10 +40,20 @@ $keyword.addEventListener("keyup", ({ target, key}) => {
 });
 
 const openRecommend = query => {
+  $keywords.innerHTML = `
+    <div class="keywordLoading">추천 검색어 로딩 중</div>
+  `;
+  if (state.isKeywordsLoading) {
+    controller.abort();
+  }
+  state.isKeywordsLoading = true;
   fetch(`${KEYWORDS_PATH}?q=${encodeURIComponent(query)}`)
     .then(res => res.json())
     .then(keywords => {
-      if (!(keywords instanceof Array) || keywords.length === 0) return;
+      state.isKeywordsLoading = false;
+      if (!(keywords instanceof Array)) {
+        keywords = [];
+      }
       state.keywords = keywords;
       $keywords.innerHTML = `
         <ul>
@@ -52,6 +65,11 @@ const openRecommend = query => {
       state.isOpened = true;
       state.selectedKey = -1;
       $keywords.style.display = 'block';
+      if (keywords.length === 0) {
+        $keywords.innerHTML = `
+          <div class="keywordLoading">관련된 검색어가 없습니다.</div>
+        `;
+      }
       window.addEventListener('click', closeRecommend);
     })
     .catch(console.log);
@@ -65,18 +83,18 @@ const closeRecommend = () => {
 }
 
 const search = () => {
-  if (state.loading) return;
+  if (state.isSearchLoading) return;
   let query = $keyword.value;
   if (state.selectedKey !== -1) {
     query = state.selected;
     $keyword.value = query;
   }
   closeRecommend();
-  loading();
+  searchLoading();
   fetch(`${SEARCH_PATH}?q=${query}`)
     .then((res) => res.json())
     .then((results) => {
-      loaded();
+      searchLoaded();
       if (!results.data) return;
       $searchResults.innerHTML = results.data
         .map((cat) => `<article><img src="${cat.url}" /></article>`)
@@ -97,12 +115,12 @@ const move = key => {
   state.selectedKey = newIndex;
 }
 
-const loading = () => {
-  document.body.appendChild(loadingTag);
-  state.loading = true;
+const searchLoading = () => {
+  document.body.appendChild(searchLoadingTag);
+  state.isSearchLoading = true;
 }
 
-const loaded = () => {
-  loadingTag.remove();
-  state.loading = false;
+const searchLoaded = () => {
+  searchLoadingTag.remove();
+  state.isSearchLoading = false;
 }

@@ -1,0 +1,1 @@
+export const API_DOMAIN = 'https://jf3iw5iguk.execute-api.ap-northeast-2.amazonaws.com';

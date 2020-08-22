@@ -1,15 +1,15 @@
-const $keyword = document.querySelector(".keyword");
-const $keywords = document.querySelector(".keywords");
-const $searchResults = document.querySelector(".search-results");
+import { selectOne } from "./utils";
+import { API_DOMAIN } from "./constant";
 
-$keyword.addEventListener("keyup", (e) => {
-  const { value } = e.target;
-  const { key } = e;
+const $keyword = selectOne(".keyword");
+const $keywords = selectOne(".keywords");
+const $searchResults = selectOne(".search-results");
+
+$keyword.addEventListener("keyup", ({ target, key }) => {
+  const { value } = target;
 
   if (key === "Enter") {
-    fetch(
-      `https://jf3iw5iguk.execute-api.ap-northeast-2.amazonaws.com/dev/api/cats/search?q=${value}`
-    )
+    fetch(`${API_DOMAIN}/dev/api/cats/search?q=${value}`)
       .then((res) => res.json())
       .then((results) => {
         if (results.data) {

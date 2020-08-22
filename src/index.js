@@ -19,6 +19,9 @@ const state = {
 const searchLoadingTag = document.createElement('div');
 searchLoadingTag.classList.add('searchLoading');
 
+const messagesTag = document.createElement('div');
+messagesTag.classList.add('messages');
+
 $keywords.addEventListener('click', e => {
   e.stopPropagation();
   state.selectedKey = [ ...selectAll('li', $keywords) ].indexOf(e.target);
@@ -28,7 +31,7 @@ $keywords.addEventListener('click', e => {
 
 $keyword.addEventListener("input", ({ target: { value } }) => {
   if (value.length === 0) return;
-  debounce(openRecommend(value), 200);
+  debounce(() => openRecommend(value), 200);
 })
 
 $keyword.addEventListener("keyup", ({ target, key}) => {
@@ -72,7 +75,10 @@ const openRecommend = query => {
       }
       window.addEventListener('click', closeRecommend);
     })
-    .catch(console.log);
+    .catch(() => {
+      state.isKeywordsLoading = false;
+      errorMessage('검색어 키워드를 가져오는 도중 에러가 발생하였습니다.');
+    });
 }
 
 const closeRecommend = () => {
@@ -99,6 +105,11 @@ const search = () => {
       $searchResults.innerHTML = results.data
         .map((cat) => `<article><img src="${cat.url}" /></article>`)
         .join("");
+      history.pushState({ q: query }, '', `${location.pathname}?q=${query}`);
+    })
+    .catch(() => {
+      searchLoaded();
+      errorMessage('검색하는 도중 에러가 발생하였습니다.');
     });
 }
 
@@ -123,4 +134,20 @@ const searchLoading = () => {
 const searchLoaded = () => {
   searchLoadingTag.remove();
   state.isSearchLoading = false;
+}
+
+const errorMessage = e => {
+  if (messagesTag.parentNode === null) {
+    document.body.appendChild(messagesTag);
+  }
+  const message = document.createElement('div');
+  message.classList.add('error');
+  message.innerHTML = e;
+  messagesTag.appendChild(message);
+  setTimeout(() => {
+    message.remove();
+    if (messagesTag.childElementCount === 0) {
+      messagesTag.remove();
+    }
+  }, 2000);
 }

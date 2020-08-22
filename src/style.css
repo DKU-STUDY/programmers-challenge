@@ -79,7 +79,7 @@ img {
 }
 
 .searchLoading {
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
   top: 0;
@@ -104,4 +104,36 @@ img {
   font-size: 13px;
   font-weight: bold;
   border-radius: 3px;
+}
+
+.messages {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 50px;
+  z-index: 100;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+.messages > div {
+  border: 1px solid #ddd;
+  padding: 10px;
+  background: #fff;
+  width: 700px;
+  text-align: center;
+  border-radius: 3px;
+  animation: messageOpen 0.3s;
+  margin-bottom: 10px;
+}
+.messages > div.error {
+  color: #f56c6c;
+  border: 1px solid #fde2e2;
+  padding: 10px;
+  background: #fef0f0;
+}
+@keyframes messageOpen {
+  from { opacity: 0; transform: translateY(50px) }
+  to { opacity: 1; transform: translateY(0) }
 }

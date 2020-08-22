@@ -1,5 +1,5 @@
-import { selectAll, selectOne, debounce } from "./utils/index.js";
-import { KEYWORDS_PATH, SEARCH_PATH } from "./constant/index.js";
+import {debounce, selectAll, selectOne} from "./utils/index.js";
+import {KEYWORDS_PATH, SEARCH_PATH} from "./constant/index.js";
 
 const $keyword = selectOne(".keyword");
 const $keywords = selectOne(".keywords");
@@ -54,9 +54,6 @@ const openRecommend = query => {
     .then(res => res.json())
     .then(keywords => {
       state.isKeywordsLoading = false;
-      if (!(keywords instanceof Array)) {
-        keywords = [];
-      }
       state.keywords = keywords;
       $keywords.innerHTML = `
         <ul>
@@ -150,4 +147,10 @@ const errorMessage = e => {
       messagesTag.remove();
     }
   }, 2000);
+}
+
+window.onload = e => {
+  const query = location.search.replace(/^\?q=(.*)$/, '$1')
+  $keyword.value = decodeURIComponent(query);
+  search();
 }

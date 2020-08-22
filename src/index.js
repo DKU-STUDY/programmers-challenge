@@ -8,10 +8,13 @@ const state = {
   isOpened: false,
   selectedKey: -1,
   keywords: [],
+  loading: false,
   get selected () {
     return this.keywords[this.selectedKey];
   }
 }
+const loadingTag = document.createElement('div');
+loadingTag.classList.add('loading');
 
 $keywords.addEventListener('click', e => {
   e.stopPropagation();
@@ -62,15 +65,18 @@ const closeRecommend = () => {
 }
 
 const search = () => {
+  if (state.loading) return;
   let query = $keyword.value;
   if (state.selectedKey !== -1) {
     query = state.selected;
     $keyword.value = query;
   }
   closeRecommend();
+  loading();
   fetch(`${SEARCH_PATH}?q=${query}`)
     .then((res) => res.json())
     .then((results) => {
+      loaded();
       if (!results.data) return;
       $searchResults.innerHTML = results.data
         .map((cat) => `<article><img src="${cat.url}" /></article>`)
@@ -89,4 +95,14 @@ const move = key => {
   els[selectedKey]?.classList.remove('active');
   els[newIndex].classList.add('active');
   state.selectedKey = newIndex;
+}
+
+const loading = () => {
+  document.body.appendChild(loadingTag);
+  state.loading = true;
+}
+
+const loaded = () => {
+  loadingTag.remove();
+  state.loading = false;
 }

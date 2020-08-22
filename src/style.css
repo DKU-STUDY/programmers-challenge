@@ -77,3 +77,22 @@ img {
   height: 100%;
   object-fit: cover;
 }
+
+.loading {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0,0,0, 0.5);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  font-size: 21px;
+}
+
+.loading::after {
+  content: "고양이를 검색하고 있습니다.";
+}

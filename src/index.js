@@ -1,5 +1,6 @@
 import {debounce, selectAll, selectOne} from "./utils/index.js";
 import {KEYWORDS_PATH, SEARCH_PATH} from "./constant/index.js";
+import {keywordsService, searchService} from "./services/index.js";
 
 const $keyword = selectOne(".keyword");
 const $keywords = selectOne(".keywords");
@@ -49,33 +50,42 @@ const openRecommend = query => {
   if (state.isKeywordsLoading) {
     controller.abort();
   }
+  const cacheData = keywordsService.get(query);
+  if (cacheData) {
+    return keywordsRender(cacheData);
+  }
   state.isKeywordsLoading = true;
   fetch(`${KEYWORDS_PATH}?q=${encodeURIComponent(query)}`)
     .then(res => res.json())
     .then(keywords => {
-      state.isKeywordsLoading = false;
-      state.keywords = keywords;
-      $keywords.innerHTML = `
-        <ul>
-          ${keywords.map(key => `
-            <li>${key}</li>
-          `).join('')}
-        </ul>
-      `;
-      state.isOpened = true;
-      state.selectedKey = -1;
-      $keywords.style.display = 'block';
-      if (keywords.length === 0) {
-        $keywords.innerHTML = `
-          <div class="keywordLoading">관련된 검색어가 없습니다.</div>
-        `;
-      }
-      window.addEventListener('click', closeRecommend);
+      keywordsService.set(query, keywords);
+      keywordsRender(keywords);
     })
     .catch(() => {
       state.isKeywordsLoading = false;
       errorMessage('검색어 키워드를 가져오는 도중 에러가 발생하였습니다.');
     });
+}
+
+const keywordsRender = keywords => {
+  state.isKeywordsLoading = false;
+  state.keywords = keywords;
+  $keywords.innerHTML = `
+    <ul>
+      ${keywords.map(key => `
+        <li>${key}</li>
+      `).join('')}
+    </ul>
+  `;
+  state.isOpened = true;
+  state.selectedKey = -1;
+  $keywords.style.display = 'block';
+  if (keywords.length === 0) {
+    $keywords.innerHTML = `
+          <div class="keywordLoading">관련된 검색어가 없습니다.</div>
+        `;
+  }
+  window.addEventListener('click', closeRecommend);
 }
 
 const closeRecommend = () => {
@@ -92,22 +102,31 @@ const search = () => {
     query = state.selected;
     $keyword.value = query;
   }
+  const cacheData = searchService.get(query);
+  if (cacheData) {
+    return searchRender(cacheData, query);
+  }
   closeRecommend();
   searchLoading();
   fetch(`${SEARCH_PATH}?q=${query}`)
     .then((res) => res.json())
-    .then((results) => {
-      searchLoaded();
-      if (!results.data) return;
-      $searchResults.innerHTML = results.data
-        .map((cat) => `<article><img src="${cat.url}" /></article>`)
-        .join("");
-      history.pushState({ q: query }, '', `${location.pathname}?q=${query}`);
+    .then(results => {
+      searchService.set(query, results);
+      searchRender(results, query);
     })
     .catch(() => {
       searchLoaded();
       errorMessage('검색하는 도중 에러가 발생하였습니다.');
     });
+}
+
+const searchRender = (results, query) => {
+  searchLoaded();
+  if (!results.data) return;
+  $searchResults.innerHTML = results.data
+    .map((cat) => `<article><img src="${cat.url}" /></article>`)
+    .join("");
+  history.pushState({ q: query }, '', `${location.pathname}?q=${query}`);
 }
 
 const move = key => {
@@ -149,7 +168,7 @@ const errorMessage = e => {
   }, 2000);
 }
 
-window.onload = e => {
+window.onload = () => {
   const query = location.search.replace(/^\?q=(.*)$/, '$1')
   $keyword.value = decodeURIComponent(query);
   search();

@@ -9,9 +9,10 @@ $keyword.addEventListener("input", ({ target }) => {
   fetch(`${KEYWORDS_PATH}?q=${encodeURIComponent(target.value)}`)
     .then(res => res.json())
     .then(keywords => {
+      if (keywords.length === 0) return;
       $keywords.innerHTML = `
         <ul>
-          ${[...keywords].map(key => `
+          ${keywords.map(key => `
             <li>${key}</li>
           `).join('')}
         </ul>
@@ -24,15 +25,22 @@ $keyword.addEventListener("input", ({ target }) => {
 $keyword.addEventListener("keyup", ({ target, key }) => {
   const { value } = target;
 
-  if (key === "Enter") {
-    fetch(`${SEARCH_PATH}?q=${value}`)
-      .then((res) => res.json())
-      .then((results) => {
-        if (results.data) {
-          $searchResults.innerHTML = results.data
-            .map((cat) => `<article><img src="${cat.url}" /></article>`)
-            .join("");
-        }
-      });
-  }
+  if (key === 'Escape') close();
+  if (key === 'Enter') search(value);
 });
+
+const close = () => {
+  $keywords.style.display = '';
+}
+
+const search = query => {
+  fetch(`${SEARCH_PATH}?q=${query}`)
+    .then((res) => res.json())
+    .then((results) => {
+      if (results.data) {
+        $searchResults.innerHTML = results.data
+          .map((cat) => `<article><img src="${cat.url}" /></article>`)
+          .join("");
+      }
+    });
+}

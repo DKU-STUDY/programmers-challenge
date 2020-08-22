@@ -50,10 +50,6 @@ const openRecommend = async query => {
   if (state.isKeywordsLoading) {
     controller.abort();
   }
-  const cacheData = keywordsService.get(query);
-  if (cacheData) {
-    return keywordsRender(cacheData);
-  }
   state.isKeywordsLoading = true;
   try {
     const keywords = await fetchKeywords(query);
@@ -99,10 +95,6 @@ const search = async () => {
   if (state.selectedKey !== -1) {
     query = state.selected;
     $keyword.value = query;
-  }
-  const cacheData = searchService.get(query);
-  if (cacheData) {
-    return searchRender(cacheData, query);
   }
   closeRecommend();
   searchLoading();

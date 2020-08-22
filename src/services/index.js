@@ -1,4 +1,4 @@
-import store from "../store/index.js";
+import store from "../storage/index.js";
 
 const createService = STORE_KEY => {
   return Object.freeze({

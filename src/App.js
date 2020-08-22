@@ -1,6 +1,7 @@
 import {debounce, selectAll, selectOne} from "./utils/index.js";
-import {KEYWORDS_PATH, SEARCH_PATH} from "./constant/index.js";
+import { SEARCH_PATH } from "./constant/index.js";
 import {keywordsService, searchService} from "./services/index.js";
+import {fetchKeywords} from "./adapter/CatAdapter.js";
 
 const $keyword = selectOne(".keyword");
 const $keywords = selectOne(".keywords");
@@ -43,7 +44,7 @@ $keyword.addEventListener("keyup", ({ target, key}) => {
   if (key === 'Enter') search(value);
 });
 
-const openRecommend = query => {
+const openRecommend = async query => {
   $keywords.innerHTML = `
     <div class="keywordLoading">추천 검색어 로딩 중</div>
   `;
@@ -55,16 +56,14 @@ const openRecommend = query => {
     return keywordsRender(cacheData);
   }
   state.isKeywordsLoading = true;
-  fetch(`${KEYWORDS_PATH}?q=${encodeURIComponent(query)}`)
-    .then(res => res.json())
-    .then(keywords => {
-      keywordsService.set(query, keywords);
-      keywordsRender(keywords);
-    })
-    .catch(() => {
-      state.isKeywordsLoading = false;
-      errorMessage('검색어 키워드를 가져오는 도중 에러가 발생하였습니다.');
-    });
+  try {
+    const keywords = await fetchKeywords(query);
+    keywordsService.set(query, keywords);
+    keywordsRender(keywords);
+  } catch (e) {
+    state.isKeywordsLoading = false;
+    errorMessage('검색어 키워드를 가져오는 도중 에러가 발생하였습니다.');
+  }
 }
 
 const keywordsRender = keywords => {
@@ -82,8 +81,8 @@ const keywordsRender = keywords => {
   $keywords.style.display = 'block';
   if (keywords.length === 0) {
     $keywords.innerHTML = `
-          <div class="keywordLoading">관련된 검색어가 없습니다.</div>
-        `;
+      <div class="keywordLoading">관련된 검색어가 없습니다.</div>
+    `;
   }
   window.addEventListener('click', closeRecommend);
 }

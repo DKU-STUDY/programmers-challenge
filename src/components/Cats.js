@@ -28,10 +28,7 @@ export const Cats = class {
   }
 
   #setState (args) {
-    this.#state = {
-      ...this.#state,
-      ...args
-    };
+    this.#state = { ...this.#state, ...args };
     this.#render();
   }
 

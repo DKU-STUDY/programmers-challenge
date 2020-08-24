@@ -2,7 +2,7 @@ import {debounce, selectAll, selectOne} from "./utils/index.js";
 import {keywordsService, searchService} from "./services/index.js";
 import {fetchCats, fetchKeywords} from "./adapter/CatAdapter.js";
 
-const $keyword = selectOne(".keyword");
+const $searchInput = selectOne(".keyword");
 const $keywords = selectOne(".keywords");
 const $searchResults = selectOne(".search-results");
 const controller = new AbortController();
@@ -26,16 +26,16 @@ messagesTag.classList.add('messages');
 $keywords.addEventListener('click', e => {
   e.stopPropagation();
   state.selectedKey = [ ...selectAll('li', $keywords) ].indexOf(e.target);
-  $keyword.value = state.selected;
+  $searchInput.value = state.selected;
   search();
 })
 
-$keyword.addEventListener("input", ({ target: { value } }) => {
+$searchInput.addEventListener("input", ({ target: { value } }) => {
   if (value.length === 0) return;
   debounce(() => openRecommend(value), 200);
 })
 
-$keyword.addEventListener("keyup", ({ target, key}) => {
+$searchInput.addEventListener("keyup", ({ target, key}) => {
   const { value } = target;
 
   if (['ArrowUp', 'ArrowDown'].includes(key)) move(key);
@@ -91,10 +91,10 @@ const closeRecommend = () => {
 
 const search = async () => {
   if (state.isSearchLoading) return;
-  let query = $keyword.value;
+  let query = $searchInput.value;
   if (state.selectedKey !== -1) {
     query = state.selected;
-    $keyword.value = query;
+    $searchInput.value = query;
   }
   closeRecommend();
   searchLoading();
@@ -158,6 +158,6 @@ const errorMessage = e => {
 
 window.onload = () => {
   const query = location.search.replace(/^\?q=(.*)$/, '$1')
-  $keyword.value = decodeURIComponent(query);
+  $searchInput.value = decodeURIComponent(query);
   search();
 }

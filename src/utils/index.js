@@ -7,3 +7,14 @@ export const debounce = (() => {
     timer = setTimeout(callback, debounceTime);
   }
 })();
+
+export const eventBus = {
+  events: {},
+  $on (key, callback) {
+    this.events[key] = this.events[key] || [];
+    this.events[key].push(callback);
+  },
+  $emit (key, params) {
+    this.events[key].forEach(callback => callback(params));
+  }
+}

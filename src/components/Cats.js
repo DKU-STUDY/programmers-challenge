@@ -4,11 +4,16 @@ export const Search = class {
 
   constructor (target) {
     this.#target = target;
-    this.setState();
+    this.setState({
+      cats: []
+    });
   }
 
   #render () {
-
+    const { cats } = this.#state;
+    this.#target.innerHTML = cats.map((cat) => `
+      <article><img src="${cat.url}" /></article>
+    `).join('');
   }
 
   #event () {

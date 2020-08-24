@@ -19,18 +19,18 @@ export const Message = class {
     const { type, text } = this.#state;
     const target = this.#target;
 
-
-    if (messagesTag.parentNode === null) {
-      document.body.appendChild(messagesTag);
+    if (target.parentNode === null) {
+      document.body.appendChild(target);
     }
+
     const message = document.createElement('div');
-    message.classList.add('error');
-    message.innerHTML = e;
-    messagesTag.appendChild(message);
+    message.classList.add(type);
+    message.innerHTML = text;
+    target.appendChild(message);
     setTimeout(() => {
       message.remove();
-      if (messagesTag.childElementCount === 0) {
-        messagesTag.remove();
+      if (target.childElementCount === 0) {
+        target.remove();
       }
     }, 2000);
 

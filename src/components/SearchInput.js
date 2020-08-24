@@ -8,6 +8,7 @@ export const SearchInput = class {
     this.#target = target;
     this.#event();
     this.#load();
+    eventBus.$on('searchInputSubmit', query => this.#searchCats(query));
   }
 
   #event () {

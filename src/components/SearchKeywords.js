@@ -1,10 +1,13 @@
+import {eventBus, selectAll} from "../utils";
+
 export const SearchKeywords = class {
 
-  #state; #target;
+  #state; #target; #abortController;
 
   constructor (target) {
     this.#target = target;
-    this.setState({
+    this.#abortController = new AbortController();
+    this.#setState({
       keywords: [],
       selectedIndex: -1,
       isOpened: false,
@@ -14,6 +17,8 @@ export const SearchKeywords = class {
         return selectedIndex !== -1 ? keywords[selectedIndex] : null;
       }
     });
+
+    eventBus.$on('openRecommend', query => this.#open(query));
   }
 
   #render () {
@@ -32,10 +37,25 @@ export const SearchKeywords = class {
   }
 
   #event () {
-
+    this.#target.addEventListener('click', e => {
+      e.stopPropagation();
+      const selectedKey = [ ...selectAll('li', this.#target) ].indexOf(e.target);
+      this.#setState({ selectedKey });
+      eventBus.$emit('searchInputSubmit', this.#state.selectedKeyword);
+    })
   }
 
-  setState (args) {
+  #open () {
+    if (this.#state.isKeywordsLoading) {
+      this.#abortController.abort();
+    }
+  }
+
+  #close () {
+    this.#setState({ isOpened: false });
+  }
+
+  #setState (args) {
     this.#state = { ...this.#state, ...args };
     this.#render();
     this.#event();

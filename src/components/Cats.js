@@ -21,7 +21,9 @@ export const Cats = class {
   #render () {
     const { cats } = this.#state;
     this.#target.innerHTML = cats.map((cat) => `
-      <article><img src="${cat.url}" /></article>
+      <article>
+        <img src="${cat.url}" />
+      </article>
     `).join('');
   }
 

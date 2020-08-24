@@ -1,4 +1,4 @@
-export const Search = class {
+export const SearchInput = class {
 
   #state; #target;
 

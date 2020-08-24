@@ -41,7 +41,6 @@ export const SearchInput = class {
     const isSearchLoading = await new Promise(resolve => eventBus.$emit('getIsSearchLoading', resolve))
     if (isSearchLoading) return;
 
-    eventBus.$emit('closeRecommend');
     eventBus.$emit('searchCats', query);
   }
 

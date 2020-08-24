@@ -33,6 +33,7 @@ export const Cats = class {
   }
 
   #search = async query => {
+    eventBus.$emit('closeRecommend');
     eventBus.$emit('searchLoading');
     try {
       const cats = await fetchCats(query);

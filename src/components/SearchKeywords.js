@@ -1,4 +1,4 @@
-import { eventBus, selectAll} from "../utils";
+import { eventBus, selectAll} from "../utils/index.js";
 import { fetchKeywords } from "../adapter/CatAdapter.js";
 import { keywordsService } from "../services/index.js";
 

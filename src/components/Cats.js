@@ -1,6 +1,6 @@
 import { eventBus } from "../utils/index.js";
-import {fetchCats} from "../adapter/CatAdapter";
-import {searchService} from "../services";
+import { fetchCats } from "../adapter/CatAdapter.js";
+import { searchService } from "../services/index.js";
 
 export const Cats = class {
 

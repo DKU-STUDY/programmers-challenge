@@ -17,11 +17,12 @@ export const SearchKeywords = class {
       get selectedKeyword () {
         const { keywords, selectedIndex } = this;
         return selectedIndex !== -1 ? keywords[selectedIndex] : null;
-      }
+      },
     });
 
     eventBus.$on('openRecommend', this.#open);
     eventBus.$on('closeRecommend', this.#close);
+    eventBus.$on('selectKeyword', this.#select);
   }
 
   #render () {
@@ -71,6 +72,14 @@ export const SearchKeywords = class {
   #close = () => {
     this.#setState({ isOpened: false });
     window.removeEventListener('click', this.#close);
+  }
+
+  #select = increment => {
+    const { keywords, selectedKey, len = keywords.length } = this.#state;
+    let newKey = selectedKey + increment;
+    if (newKey < 0) newKey = len - 1;
+    if (newKey >= len) newKey = 0;
+    this.#setState({ selectedKey: newKey });
   }
 
   #setState (args) {

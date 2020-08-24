@@ -13,6 +13,7 @@ export const SearchLoading = class {
 
     eventBus.$on('searchLoading', this.#searchLoading);
     eventBus.$on('searchLoaded', this.#searchLoaded);
+    eventBus.$on('getIsSearchLoading', resolve => resolve(this.#state.isSearchLoading));
   }
 
   #render () {

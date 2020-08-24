@@ -1,4 +1,6 @@
-import {eventBus, selectAll} from "../utils";
+import { eventBus, selectAll} from "../utils";
+import { fetchKeywords } from "../adapter/CatAdapter.js";
+import { keywordsService } from "../services/index.js";
 
 export const SearchKeywords = class {
 
@@ -18,21 +20,23 @@ export const SearchKeywords = class {
       }
     });
 
-    eventBus.$on('openRecommend', query => this.#open(query));
+    eventBus.$on('openRecommend', this.#open);
+    eventBus.$on('closeRecommend', this.#close);
   }
 
   #render () {
     const { keywords, selectedIndex, isOpened, isKeywordsLoading } = this.#state;
     this.#target.style.display =  isOpened ? 'block' : '';
-    this.#target.innerHTML = isKeywordsLoading
-        ? `<div class="keywordLoading">추천 검색어 로딩 중</div>`
-        : `
-          <ul>
-            ${keywords.map(key => `
-              <li ${key === selectedIndex ? 'class="active"' : ''}>${key}</li>
-            `).join('')}
-          </ul>
-        `;
+    this.#target.innerHTML =
+      isKeywordsLoading     ? `<div class="keywordLoading">추천 검색어 로딩 중</div>`       :
+      keywords.length === 0 ? `<div class="keywordLoading">관련된 검색어가 없습니다.</div>` :
+      `
+        <ul>
+          ${keywords.map(key => `
+            <li ${key === selectedIndex ? 'class="active"' : ''}>${key}</li>
+          `).join('')}
+        </ul>
+      `;
 
   }
 
@@ -43,16 +47,30 @@ export const SearchKeywords = class {
       this.#setState({ selectedKey });
       eventBus.$emit('searchInputSubmit', this.#state.selectedKeyword);
     })
+    window.addEventListener('click', this.#close);
   }
 
-  #open () {
+  #open = async query => {
     if (this.#state.isKeywordsLoading) {
       this.#abortController.abort();
     }
+    this.#setState({ isKeywordsLoading: true, isOpened: true, selectedKey: -1 });
+    try {
+      const keywords = await fetchKeywords(query);
+      keywordsService.set(query, keywords);
+      this.#setState({ keywords, isKeywordsLoading: false });
+    } catch (e) {
+      this.#setState({ isKeywordsLoading: false });
+      eventBus.$emit('message', {
+        type: 'error',
+        text: '검색어 키워드를 가져오는 도중 에러가 발생하였습니다.',
+      });
+    }
   }
 
-  #close () {
+  #close = () => {
     this.#setState({ isOpened: false });
+    window.removeEventListener('click', this.#close);
   }
 
   #setState (args) {

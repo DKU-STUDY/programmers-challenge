@@ -17,6 +17,9 @@ export const Message = class {
 
   #render () {
     const { type, text } = this.#state;
+
+    if (type === null || text === null) return;
+
     const target = this.#target;
 
     if (target.parentNode === null) {

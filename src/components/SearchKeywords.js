@@ -33,8 +33,8 @@ export const SearchKeywords = class {
       keywords.length === 0 ? `<div class="keywordLoading">관련된 검색어가 없습니다.</div>` :
       `
         <ul>
-          ${keywords.map(key => `
-            <li ${key === selectedIndex ? 'class="active"' : ''}>${key}</li>
+          ${keywords.map((value, key) => `
+            <li ${key === selectedIndex ? 'class="active"' : ''}>${value}</li>
           `).join('')}
         </ul>
       `;
@@ -44,8 +44,8 @@ export const SearchKeywords = class {
   #event () {
     this.#target.addEventListener('click', e => {
       e.stopPropagation();
-      const selectedKey = [ ...selectAll('li', this.#target) ].indexOf(e.target);
-      this.#setState({ selectedKey });
+      const selectedIndex = [ ...selectAll('li', this.#target) ].indexOf(e.target);
+      this.#setState({ selectedIndex });
       eventBus.$emit('searchInputSubmit', this.#state.selectedKeyword);
     })
     window.addEventListener('click', this.#close);
@@ -55,7 +55,7 @@ export const SearchKeywords = class {
     if (this.#state.isKeywordsLoading) {
       this.#abortController.abort();
     }
-    this.#setState({ isKeywordsLoading: true, isOpened: true, selectedKey: -1 });
+    this.#setState({ isKeywordsLoading: true, isOpened: true, selectedIndex: -1 });
     try {
       const keywords = await fetchKeywords(query);
       keywordsService.set(query, keywords);
@@ -75,11 +75,11 @@ export const SearchKeywords = class {
   }
 
   #select = increment => {
-    const { keywords, selectedKey, len = keywords.length } = this.#state;
-    let newKey = selectedKey + increment;
+    const { keywords, selectedIndex, len = keywords.length } = this.#state;
+    let newKey = selectedIndex + increment;
     if (newKey < 0) newKey = len - 1;
     if (newKey >= len) newKey = 0;
-    this.#setState({ selectedKey: newKey });
+    this.#setState({ selectedIndex: newKey });
   }
 
   #setState (args) {

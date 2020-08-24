@@ -1,4 +1,6 @@
 import { eventBus } from "../utils/index.js";
+import {fetchCats} from "../adapter/CatAdapter";
+import {searchService} from "../services";
 
 export const Cats = class {
 
@@ -31,17 +33,15 @@ export const Cats = class {
     this.#render();
   }
 
-  #search = cats => {
-
-  }
-
-  #searchLoading () {
-    document.body.appendChild(searchLoadingTag);
-    state.isSearchLoading = true;
-  }
-
-  #searchLoaded () {
-    searchLoadingTag.remove();
-    state.isSearchLoading = false;
+  #search = async query => {
+    eventBus.$emit('searchLoading');
+    try {
+      const cats = await fetchCats(query);
+      searchService.set(query, cats);
+      this.#setState({ cats })
+    } catch (e) {
+      eventBus.$emit('searchLoaded');
+      eventBus.$emit('error', '검색하는 도중 에러가 발생하였습니다.');
+    }
   }
 }

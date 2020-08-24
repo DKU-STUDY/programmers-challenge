@@ -1,12 +1,18 @@
-export const Search = class {
+import { eventBus } from "../utils/index.js";
 
-  #state; #target;
+export const Cats = class {
+
+  #state; #target; #searchLoadingTag;
 
   constructor (target) {
     this.#target = target;
-    this.setState({
+    this.#searchLoadingTag = document.createElement('div');
+    this.#searchLoadingTag.classList.add('searchLoading');
+    this.#setState({
       cats: []
     });
+
+    eventBus.$on('searchCats', this.#search);
   }
 
   #render () {
@@ -16,16 +22,25 @@ export const Search = class {
     `).join('');
   }
 
-  #event () {
-
-  }
-
-  setState (args) {
+  #setState (args) {
     this.#state = {
       ...this.#state,
       ...args
     };
     this.#render();
-    this.#event();
+  }
+
+  #search = cats => {
+
+  }
+
+  #searchLoading () {
+    document.body.appendChild(searchLoadingTag);
+    state.isSearchLoading = true;
+  }
+
+  #searchLoaded () {
+    searchLoadingTag.remove();
+    state.isSearchLoading = false;
   }
 }

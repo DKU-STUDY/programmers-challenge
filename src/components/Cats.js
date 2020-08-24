@@ -9,7 +9,8 @@ export const Cats = class {
     this.#searchLoadingTag = document.createElement('div');
     this.#searchLoadingTag.classList.add('searchLoading');
     this.#setState({
-      cats: []
+      cats: [],
+      isSearchLoading: false,
     });
 
     eventBus.$on('searchCats', this.#search);

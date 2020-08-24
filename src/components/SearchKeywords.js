@@ -4,7 +4,14 @@ export const SearchKeywords = class {
 
   constructor (target) {
     this.#target = target;
-    this.setState();
+    this.setState({
+      keywords: [],
+      selectedIndex: -1,
+      get selectedKeyword () {
+        const { keywords, selectedIndex } = this;
+        return selectedIndex !== -1 ? keywords[selectedIndex] : null;
+      }
+    });
   }
 
   #render () {
@@ -16,10 +23,7 @@ export const SearchKeywords = class {
   }
 
   setState (args) {
-    this.#state = {
-      ...this.#state,
-      ...args
-    };
+    this.#state = { ...this.#state, ...args };
     this.#render();
     this.#event();
   }

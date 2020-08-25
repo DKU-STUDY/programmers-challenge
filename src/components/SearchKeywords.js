@@ -20,10 +20,6 @@ export const SearchKeywords = class {
         return selectedIndex !== -1 ? keywords[selectedIndex] : null;
       },
     });
-
-    eventBus.$on('openRecommend', this.#open);
-    eventBus.$on('closeRecommend', this.#close);
-    eventBus.$on('selectKeyword', this.#select);
   }
 
   #render () {
@@ -52,7 +48,7 @@ export const SearchKeywords = class {
     window.addEventListener('click', this.#close);
   }
 
-  #open = async query => {
+  open = async query => {
     if (this.#state.isKeywordsLoading) {
       this.#abortController.abort();
     }
@@ -70,12 +66,12 @@ export const SearchKeywords = class {
     }
   }
 
-  #close = () => {
+  close = () => {
     this.#setState({ isOpened: false });
     window.removeEventListener('click', this.#close);
   }
 
-  #select = increment => {
+  select = increment => {
     const { keywords, selectedIndex, len = keywords.length } = this.#state;
     let newKey = selectedIndex + increment;
     if (newKey < 0) newKey = len - 1;

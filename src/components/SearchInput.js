@@ -23,11 +23,11 @@ export const SearchInput = class {
     target.addEventListener("keyup", ({ target, key}) => {
 
       if (['ArrowUp', 'ArrowDown'].includes(key)) {
-        eventBus.$emit('selectKeyword', key === 'ArrowUp' ? -1 : 1);
+        this.#props.select(key === 'ArrowUp' ? -1 : 1);
       }
 
       if (key === 'Escape') {
-        eventBus.$emit('closeRecommend')
+        this.#props.closeRecommend();
       }
 
       if (key === 'Enter') {

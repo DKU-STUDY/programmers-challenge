@@ -10,10 +10,6 @@ export const SearchLoading = class {
     this.#setState({
       isSearchLoading: false,
     });
-
-    eventBus.$on('searchLoading', () => this.#setState({ isSearchLoading: true }));
-    eventBus.$on('searchLoaded', () => this.#setState({ isSearchLoading: false }));
-    eventBus.$on('getIsSearchLoading', resolve => resolve(this.#state.isSearchLoading));
   }
 
   #render () {
@@ -27,4 +23,8 @@ export const SearchLoading = class {
     this.#state = { ...this.#state, ...args };
     this.#render();
   }
+
+  getIsLoading () { return this.#state.isSearchLoading; }
+  loading () { this.#setState({ isSearchLoading: true }) }
+  loaded () { this.#setState({ isSearchLoading: false }) }
 }

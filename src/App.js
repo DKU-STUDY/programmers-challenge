@@ -1,163 +1,59 @@
-import {debounce, selectAll, selectOne} from "./utils/index.js";
-import {keywordsService, searchService} from "./services/index.js";
-import {fetchCats, fetchKeywords} from "./adapter/CatAdapter.js";
+import { selectOne } from "./utils/index.js";
+import { Cats } from './components/Cats.js';
+import { SearchLoading } from "./components/SearchLoading.js";
+import { Message } from "./components/Message.js";
+import { SearchKeywords } from "./components/SearchKeywords.js";
+import { SearchInput } from "./components/SearchInput.js";
 
-const $searchInput = selectOne(".keyword");
-const $keywords = selectOne(".keywords");
-const $searchResults = selectOne(".search-results");
-const controller = new AbortController();
-const state = {
-  isOpened: false,
-  isSearchLoading: false,
-  isKeywordsLoading: false,
-  selectedKey: -1,
-  keywords: [],
-  get selected () {
-    return this.keywords[this.selectedKey];
-  }
-}
+class App {
+  #components;
 
-const searchLoadingTag = document.createElement('div');
-searchLoadingTag.classList.add('searchLoading');
-
-const messagesTag = document.createElement('div');
-messagesTag.classList.add('messages');
-
-$keywords.addEventListener('click', e => {
-  e.stopPropagation();
-  state.selectedKey = [ ...selectAll('li', $keywords) ].indexOf(e.target);
-  $searchInput.value = state.selected;
-  search();
-})
-
-$searchInput.addEventListener("input", ({ target: { value } }) => {
-  if (value.length === 0) return;
-  debounce(() => openRecommend(value), 200);
-})
-
-$searchInput.addEventListener("keyup", ({ target, key}) => {
-  const { value } = target;
-
-  if (['ArrowUp', 'ArrowDown'].includes(key)) move(key);
-  if (key === 'Escape') closeRecommend();
-  if (key === 'Enter') search(value);
-});
-
-const openRecommend = async query => {
-  $keywords.innerHTML = `
-    <div class="keywordLoading">추천 검색어 로딩 중</div>
-  `;
-  if (state.isKeywordsLoading) {
-    controller.abort();
-  }
-  state.isKeywordsLoading = true;
-  try {
-    const keywords = await fetchKeywords(query);
-    keywordsService.set(query, keywords);
-    keywordsRender(keywords);
-  } catch (e) {
-    state.isKeywordsLoading = false;
-    errorMessage('검색어 키워드를 가져오는 도중 에러가 발생하였습니다.');
-  }
-}
-
-const keywordsRender = keywords => {
-  state.isKeywordsLoading = false;
-  state.keywords = keywords;
-  $keywords.innerHTML = `
-    <ul>
-      ${keywords.map(key => `
-        <li>${key}</li>
-      `).join('')}
-    </ul>
-  `;
-  state.isOpened = true;
-  state.selectedKey = -1;
-  $keywords.style.display = 'block';
-  if (keywords.length === 0) {
-    $keywords.innerHTML = `
-      <div class="keywordLoading">관련된 검색어가 없습니다.</div>
-    `;
-  }
-  window.addEventListener('click', closeRecommend);
-}
-
-const closeRecommend = () => {
-  $keywords.style.display = '';
-  state.isOpened = false;
-  state.selectedKey = -1;
-  window.removeEventListener('click', closeRecommend);
-}
-
-const search = async () => {
-  if (state.isSearchLoading) return;
-  let query = $searchInput.value;
-  if (state.selectedKey !== -1) {
-    query = state.selected;
-    $searchInput.value = query;
-  }
-  closeRecommend();
-  searchLoading();
-  try {
-    const results = await fetchCats(query);
-    searchService.set(query, results);
-    searchRender(results, query);
-  } catch (e) {
-    searchLoaded();
-    errorMessage('검색하는 도중 에러가 발생하였습니다.');
-  }
-}
-
-const searchRender = (results, query) => {
-  searchLoaded();
-  if (!results.data) return;
-  $searchResults.innerHTML = results.data
-    .map((cat) => `<article><img src="${cat.url}" /></article>`)
-    .join("");
-  history.pushState({ q: query }, '', `${location.pathname}?q=${query}`);
-}
-
-const move = key => {
-  const { isOpened, keywords, selectedKey } = state;
-  const len = keywords.length;
-  if (!isOpened) return;
-  let newIndex = key === 'ArrowUp' ? selectedKey - 1 : selectedKey + 1;
-  if (newIndex < 0) newIndex = len - 1;
-  if (newIndex >= len) newIndex = 0;
-  const els = selectAll('li', $keywords);
-  els[selectedKey]?.classList.remove('active');
-  els[newIndex].classList.add('active');
-  state.selectedKey = newIndex;
-}
-
-const searchLoading = () => {
-  document.body.appendChild(searchLoadingTag);
-  state.isSearchLoading = true;
-}
-
-const searchLoaded = () => {
-  searchLoadingTag.remove();
-  state.isSearchLoading = false;
-}
-
-const errorMessage = e => {
-  if (messagesTag.parentNode === null) {
-    document.body.appendChild(messagesTag);
-  }
-  const message = document.createElement('div');
-  message.classList.add('error');
-  message.innerHTML = e;
-  messagesTag.appendChild(message);
-  setTimeout(() => {
-    message.remove();
-    if (messagesTag.childElementCount === 0) {
-      messagesTag.remove();
+  constructor() {
+    const searchProps = {
+      search: query => this.search(query),
+      select: increment => this.select(increment),
+      closeRecommend: () => this.closeRecommend(),
+      openRecommend: query => this.openRecommend(query),
+    };
+    const catsProps = {
+      loading: () => this.searchLoading(),
+      loaded: () => this.searchLoaded(),
     }
-  }, 2000);
+    this.#components = {
+      searchLoading: new SearchLoading(),
+      message: new Message(),
+      searchInput: new SearchInput(selectOne(".keyword"), { ...searchProps }),
+      searchKeywords: new SearchKeywords(selectOne(".keywords"), { ...searchProps }),
+      cats: new Cats(selectOne(".search-results"), { ...catsProps }),
+    };
+
+    this.#load();
+  }
+
+  select (increment) { this.#components.searchKeywords.select(increment); }
+  openRecommend (query) { this.#components.searchKeywords.open(query); }
+  closeRecommend () { this.#components.searchKeywords.close(); }
+  searchLoading () { this.#components.searchLoading.loading(); }
+  searchLoaded () { this.#components.searchLoading.loaded(); }
+
+  async search (query) {
+    const { searchLoading, searchKeywords, cats, searchInput } = this.#components;
+    if (searchLoading.getIsLoading()) return;
+    const searchQuery = searchKeywords.selectedKeyword || query;
+    this.closeRecommend();
+    this.searchLoading();
+    searchInput.setValue(searchQuery);
+    await cats.search(searchQuery);
+    this.searchLoaded();
+  }
+
+  #load () {
+    const query = location.search.replace(/^\?q=(.*)$/, '$1')
+    if (query.length) {
+      this.search(decodeURIComponent(query));
+    }
+  }
+
 }
 
-window.onload = () => {
-  const query = location.search.replace(/^\?q=(.*)$/, '$1')
-  $searchInput.value = decodeURIComponent(query);
-  search();
-}
+window.onload = () => new App();

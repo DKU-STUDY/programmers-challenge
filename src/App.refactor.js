@@ -5,14 +5,25 @@ import { Message } from "./components/Message.js";
 import { SearchKeywords } from "./components/SearchKeywords.js";
 import { SearchInput } from "./components/SearchInput.js";
 
-const $keyword = selectOne(".keyword");
-const $keywords = selectOne(".keywords");
-const $searchResults = selectOne(".search-results");
+class App {
+  #components;
 
-window.onload = () => {
-  new SearchLoading();
-  new Message();
-  new SearchInput($keyword);
-  new SearchKeywords($keywords);
-  new Cats($searchResults);
+  constructor() {
+
+    const $searchInput = selectOne(".keyword");
+    const $searchKeywords = selectOne(".keywords");
+    const $searchResults = selectOne(".search-results");
+
+    new SearchLoading();
+    new Message();
+    new SearchInput($searchInput);
+    new SearchKeywords($searchKeywords);
+    new Cats($searchResults);
+  }
+
+  search () {
+
+  }
 }
+
+window.onload = () => new App();

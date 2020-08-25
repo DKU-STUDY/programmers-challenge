@@ -12,9 +12,9 @@ class App {
     const searchLoading = new SearchLoading();
     const searchProps = {
       search: () => this.search(),
-      select: () => this.select(),
+      select: increment => this.select(increment),
       closeRecommend: () => this.closeRecommend(),
-      openRecommend: () => this.openRecommend(),
+      openRecommend: query => this.openRecommend(query),
     };
     const catsProps = {
       loading: () => this.searchLoading(),

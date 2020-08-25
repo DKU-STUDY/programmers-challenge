@@ -8,7 +8,7 @@ export const SearchInput = class {
     this.#target = target;
     this.#props = props;
     this.#event();
-    eventBus.$on('searchInputSubmit', query => this.#searchCats(query));
+    eventBus.$on('searchInputSubmit', query => this.#props.search(query));
   }
 
   #event () {
@@ -16,13 +16,14 @@ export const SearchInput = class {
 
     target.addEventListener("input", ({ target: { value } }) => {
       if (value.length === 0) return;
-      debounce(() => eventBus.$emit('openRecommend', value), 200);
+      debounce(() => this.#props.openRecommend(value), 200);
     })
 
-    target.addEventListener("keyup", ({ target, key}) => {
-
+    target.addEventListener("keyup", event => {
+      const { target, key } = event;
       if (['ArrowUp', 'ArrowDown'].includes(key)) {
         this.#props.select(key === 'ArrowUp' ? -1 : 1);
+        event.preventDefault();
       }
 
       if (key === 'Escape') {

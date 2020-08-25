@@ -43,12 +43,12 @@ export const SearchKeywords = class {
       e.stopPropagation();
       const selectedIndex = [ ...selectAll('li', this.#target) ].indexOf(e.target);
       this.#setState({ selectedIndex });
-      eventBus.$emit('searchInputSubmit', this.#state.selectedKeyword);
+      this.#props.search(this.#state.selectedKeyword);
     })
-    window.addEventListener('click', this.#close);
+    window.addEventListener('click', this.close);
   }
 
-  open = async query => {
+  async open (query) {
     if (this.#state.isKeywordsLoading) {
       this.#abortController.abort();
     }
@@ -66,12 +66,12 @@ export const SearchKeywords = class {
     }
   }
 
-  close = () => {
+  close () {
     this.#setState({ isOpened: false });
-    window.removeEventListener('click', this.#close);
+    window.removeEventListener('click', this.close);
   }
 
-  select = increment => {
+  select (increment) {
     const { keywords, selectedIndex, len = keywords.length } = this.#state;
     let newKey = selectedIndex + increment;
     if (newKey < 0) newKey = len - 1;
@@ -83,5 +83,13 @@ export const SearchKeywords = class {
     this.#state = { ...this.#state, ...args };
     this.#render();
     this.#event();
+  }
+
+  getSelectedIndex () {
+    return this.#state.selectedIndex;
+  }
+
+  getSelected () {
+    return this.#state.selectedKeyword;
   }
 }

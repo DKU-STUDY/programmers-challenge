@@ -14,8 +14,6 @@ export const Cats = class {
       cats: [],
       isSearchLoading: false,
     });
-
-    eventBus.$on('searchCats', this.#search);
   }
 
   #render () {

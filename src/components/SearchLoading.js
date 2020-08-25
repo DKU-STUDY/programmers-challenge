@@ -1,5 +1,3 @@
-import { eventBus } from "../utils/index.js";
-
 export const SearchLoading = class {
 
   #state; #target;

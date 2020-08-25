@@ -21,8 +21,6 @@ export const SearchInput = class {
 
     target.addEventListener("keyup", ({ target, key}) => {
 
-      const { value } = target;
-
       if (['ArrowUp', 'ArrowDown'].includes(key)) {
         eventBus.$emit('selectKeyword', key === 'ArrowUp' ? -1 : 1);
       }
@@ -32,7 +30,7 @@ export const SearchInput = class {
       }
 
       if (key === 'Enter') {
-        this.#searchCats(value);
+        this.#searchCats(target.value);
       }
 
     });

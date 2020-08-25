@@ -8,7 +8,6 @@ export const SearchInput = class {
     this.#target = target;
     this.#props = props;
     this.#event();
-    this.#load();
     eventBus.$on('searchInputSubmit', query => this.#searchCats(query));
   }
 
@@ -31,25 +30,10 @@ export const SearchInput = class {
       }
 
       if (key === 'Enter') {
-        this.#searchCats(target.value);
+        this.#props.search(target.value);
       }
 
     });
-  }
-
-  async #searchCats (query) {
-    const isSearchLoading = await new Promise(resolve => eventBus.$emit('getIsSearchLoading', resolve))
-    if (isSearchLoading) return;
-
-    eventBus.$emit('searchCats', query);
-  }
-
-  #load () {
-    const query = location.search.replace(/^\?q=(.*)$/, '$1')
-    if (query.length) {
-      this.#target.value = decodeURIComponent(query);
-      this.#searchCats(query);
-    }
   }
 
   setValue (value) {

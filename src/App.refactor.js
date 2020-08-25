@@ -27,11 +27,15 @@ class App {
       searchKeywords: new SearchKeywords(selectOne(".keywords"), { ...searchProps }),
       cats: new Cats(selectOne(".search-results"), { ...catsProps }),
     };
+
+    this.#load();
   }
 
   select (increment) { this.#components.searchKeywords.select(increment); }
   openRecommend (query) { this.#components.searchKeywords.open(query); }
   closeRecommend () { this.#components.searchKeywords.close(); }
+  searchLoading () { this.#components.searchLoading.loading(); }
+  searchLoaded () { this.#components.searchLoading.loaded(); }
 
   async search (query) {
     const { searchLoading, searchKeywords, cats, searchInput } = this.#components;
@@ -46,8 +50,13 @@ class App {
     this.searchLoaded();
   }
 
-  searchLoading () { this.#components.searchLoading.loading(); }
-  searchLoaded () { this.#components.searchLoading.loaded(); }
+  #load () {
+    const query = location.search.replace(/^\?q=(.*)$/, '$1')
+    if (query.length) {
+      this.search(query);
+    }
+  }
+
 }
 
 window.onload = () => new App();

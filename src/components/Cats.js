@@ -36,9 +36,10 @@ export const Cats = class {
     eventBus.$emit('closeRecommend');
     eventBus.$emit('searchLoading');
     try {
-      const cats = await fetchCats(query);
+      const { data: cats } = await fetchCats(query);
       searchService.set(query, cats);
-      this.#setState({ cats })
+      this.#setState({ cats });
+      eventBus.$emit('searchLoaded');
     } catch (e) {
       eventBus.$emit('searchLoaded');
       eventBus.$emit('message', {

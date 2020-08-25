@@ -15,10 +15,6 @@ export const SearchKeywords = class {
       selectedIndex: -1,
       isOpened: false,
       isKeywordsLoading: false,
-      get selectedKeyword () {
-        const { keywords, selectedIndex } = this;
-        return selectedIndex !== -1 ? keywords[selectedIndex] : null;
-      },
     });
   }
 
@@ -43,7 +39,7 @@ export const SearchKeywords = class {
       e.stopPropagation();
       const selectedIndex = [ ...selectAll('li', this.#target) ].indexOf(e.target);
       this.#setState({ selectedIndex });
-      this.#props.search(this.#state.selectedKeyword);
+      this.#props.search(this.selectedKeyword);
     })
     window.addEventListener('click', this.close);
   }
@@ -66,7 +62,7 @@ export const SearchKeywords = class {
     }
   }
 
-  close () {
+  close = () => {
     this.#setState({ isOpened: false });
     window.removeEventListener('click', this.close);
   }
@@ -85,11 +81,8 @@ export const SearchKeywords = class {
     this.#event();
   }
 
-  getSelectedIndex () {
-    return this.#state.selectedIndex;
-  }
-
-  getSelected () {
-    return this.#state.selectedKeyword;
+  get selectedKeyword () {
+    const { keywords, selectedIndex } = this.#state;
+    return selectedIndex !== -1 ? keywords[selectedIndex] : null;
   }
 }

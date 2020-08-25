@@ -9,9 +9,8 @@ class App {
   #components;
 
   constructor() {
-    const searchLoading = new SearchLoading();
     const searchProps = {
-      search: () => this.search(),
+      search: query => this.search(query),
       select: increment => this.select(increment),
       closeRecommend: () => this.closeRecommend(),
       openRecommend: query => this.openRecommend(query),
@@ -21,7 +20,7 @@ class App {
       loaded: () => this.searchLoaded(),
     }
     this.#components = {
-      searchLoading,
+      searchLoading: new SearchLoading(),
       message: new Message(),
       searchInput: new SearchInput(selectOne(".keyword"), { ...searchProps }),
       searchKeywords: new SearchKeywords(selectOne(".keywords"), { ...searchProps }),
@@ -40,9 +39,7 @@ class App {
   async search (query) {
     const { searchLoading, searchKeywords, cats, searchInput } = this.#components;
     if (searchLoading.getIsLoading()) return;
-    const searchQuery = searchKeywords.getSelectedIndex() !== -1
-                          ? searchKeywords.getSelected()
-                          : query;
+    const searchQuery = searchKeywords.selectedKeyword || query;
     this.closeRecommend();
     this.searchLoading();
     searchInput.setValue(searchQuery);

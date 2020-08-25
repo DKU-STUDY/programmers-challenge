@@ -51,4 +51,8 @@ export const SearchInput = class {
       this.#searchCats(query);
     }
   }
+
+  setValue (value) {
+    this.#target.value = value;
+  }
 }

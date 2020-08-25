@@ -1,11 +1,9 @@
-import {selectOne} from "./utils/index.js";
-import {Cats} from './components/Cats.js';
-import {SearchLoading} from "./components/SearchLoading.js";
-import {Message} from "./components/Message.js";
-import {SearchKeywords} from "./components/SearchKeywords.js";
-import {SearchInput} from "./components/SearchInput.js";
-import {fetchCats} from "./adapter/CatAdapter";
-import {searchService} from "./services";
+import { selectOne } from "./utils/index.js";
+import { Cats } from './components/Cats.js';
+import { SearchLoading } from "./components/SearchLoading.js";
+import { Message } from "./components/Message.js";
+import { SearchKeywords } from "./components/SearchKeywords.js";
+import { SearchInput } from "./components/SearchInput.js";
 
 class App {
   #components;
@@ -43,7 +41,9 @@ class App {
                           : query;
     this.closeRecommend();
     this.searchLoading();
-    cats.search(searchQuery);
+    searchInput.setValue(searchQuery);
+    await cats.search(searchQuery);
+    this.searchLoaded();
   }
 
   searchLoading () { this.#components.searchLoading.loading(); }

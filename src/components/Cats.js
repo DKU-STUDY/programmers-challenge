@@ -32,16 +32,12 @@ export const Cats = class {
     this.#render();
   }
 
-  #search = async query => {
-    eventBus.$emit('closeRecommend');
-    eventBus.$emit('searchLoading');
+  async search (query) {
     try {
       const { data: cats } = await fetchCats(query);
       searchService.set(query, cats);
       this.#setState({ cats });
-      eventBus.$emit('searchLoaded');
     } catch (e) {
-      eventBus.$emit('searchLoaded');
       eventBus.$emit('message', {
         type: 'error',
         text: '검색하는 도중 에러가 발생하였습니다.'

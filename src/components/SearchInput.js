@@ -2,17 +2,14 @@ import {debounce, eventBus} from "../utils/index.js";
 
 export const SearchInput = class {
 
-  #target;
+  #target; #props;
 
-  constructor (target) {
+  constructor (target, props) {
     this.#target = target;
+    this.#props = props;
     this.#event();
     this.#load();
     eventBus.$on('searchInputSubmit', query => this.#searchCats(query));
-  }
-
-  get searchQuery () {
-
   }
 
   #event () {

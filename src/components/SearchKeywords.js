@@ -4,10 +4,11 @@ import { keywordsService } from "../services/index.js";
 
 export const SearchKeywords = class {
 
-  #state; #target; #abortController;
+  #state; #target; #props; #abortController;
 
-  constructor (target) {
+  constructor (target, props) {
     this.#target = target;
+    this.#props = props;
     this.#abortController = new AbortController();
     this.#setState({
       keywords: [],

@@ -9,29 +9,28 @@ class App {
   #components;
 
   constructor() {
-    const searchMethod = () => this.search();
-    const selectKeyword = () => this.selectKeyword();
     const searchLoading = new SearchLoading();
-    const searchProps = { searchMethod, selectKeyword };
+    const searchProps = {
+      search: () => this.search(),
+      select: () => this.select(),
+    };
+    const catsProps = {
+      loading: () => this.searchLoading(),
+      loaded: () => this.searchLoaded(),
+    }
     this.#components = {
       searchLoading,
       message: new Message(),
       searchInput: new SearchInput(selectOne(".keyword"), { ...searchProps }),
       searchKeywords: new SearchKeywords(selectOne(".keywords"), { ...searchProps }),
-      cats: new Cats(selectOne(".search-results"), {
-        loading: searchLoading.loading,
-        loaded: searchLoading.loaded,
-      }),
+      cats: new Cats(selectOne(".search-results"), { ...catsProps }),
     };
   }
 
-  selectKeyword () {
-
-  }
-
-  search () {
-
-  }
+  select () {}
+  search () {}
+  searchLoading () {}
+  searchLoaded () {}
 }
 
 window.onload = () => new App();

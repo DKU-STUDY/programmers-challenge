@@ -15,6 +15,7 @@ export const fetchKeywords = async query => {
 }
 export const fetchCats = async query => {
   try {
+    history.pushState({ q: query }, '', `${location.pathname}?q=${query}`);
     const cacheData = searchService.get(query);
     if (cacheData) return cacheData;
     const response = await fetch(`${SEARCH_PATH}?q=${encodeURIComponent(query)}`);

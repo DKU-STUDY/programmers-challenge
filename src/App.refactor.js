@@ -50,7 +50,7 @@ class App {
   #load () {
     const query = location.search.replace(/^\?q=(.*)$/, '$1')
     if (query.length) {
-      this.search(query);
+      this.search(decodeURIComponent(query));
     }
   }
 

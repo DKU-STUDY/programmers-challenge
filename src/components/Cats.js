@@ -32,7 +32,7 @@ export const Cats = class {
 
   async search (query) {
     try {
-      const { data: cats } = await fetchCats(query);
+      const cats = await fetchCats(query);
       searchService.set(query, cats);
       this.#setState({ cats });
     } catch (e) {

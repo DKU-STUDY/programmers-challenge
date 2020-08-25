@@ -19,9 +19,9 @@ export const fetchCats = async query => {
     const cacheData = searchService.get(query);
     if (cacheData) return cacheData;
     const response = await fetch(`${SEARCH_PATH}?q=${encodeURIComponent(query)}`);
-    const result = await response.json();
-    searchService.set(query, result);
-    return result;
+    const { data } = await response.json();
+    searchService.set(query, data);
+    return data;
   } catch (e) {
     throw new Error(e);
   }
